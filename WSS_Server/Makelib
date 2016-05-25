@@ -1,0 +1,18 @@
+CC = g++ -std=c++0x
+
+CC_FLAGS = -w
+
+LIBS = -lboost_system -lprotobuf -lcrypto -lssl -L/home/alex/Program/BB_Server/HTMLHandle/HTMLHandle/ -lhtml -L/home/alex/Program/BB_Server/BoostServerParent/BoostServerParent/ -lboostserver -L/home/alex/Program/BB_Server/Boost_WS_Server/Boost_WS_Server/ -lwsserver
+EXEC = run
+SOURCES = $(wildcard *.cpp)
+OBJECTS = $(SOURCES:.cpp=.o)
+
+$(EXEC): $(OBJECTS)
+	 $(CC) -c $(OBJECTS) -o $(EXEC) $(LIBS)
+	 ar rcs libwssserver.a $(OBJECTS)
+
+%.o: %.cpp
+	$(CC) -c -I/home/alex/Program/BB_Server/HTMLHandle/HTMLHandle/ -I/home/alex/Program/BB_Server/BoostServerParent/BoostServerParent/ -I/home/alex/Program/BB_Server/Boost_WS_Server/Boost_WS_Server/ $(CC_FLAGS) $< -o $@
+
+clean:
+	rm -f $(EXEC) $(OBJECTS)
