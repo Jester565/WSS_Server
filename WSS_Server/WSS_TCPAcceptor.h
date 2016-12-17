@@ -14,7 +14,6 @@ public:
 protected:
 	void runAccept() override;
 	void asyncAcceptHandler(const boost::system::error_code& error) override;
-	boost::asio::ssl::context sslContext;
 	ssl_socket* tempSSLSocket;
 };
 

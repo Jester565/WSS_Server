@@ -20,10 +20,11 @@ void WSS_TCPConnection::start()
 	sslSocket->async_handshake(boost::asio::ssl::stream_base::server, boost::bind(&WSS_TCPConnection::asyncHandshakeHandler, this, boost::asio::placeholders::error));
 }
 
+/*
 void WSS_TCPConnection::send(boost::shared_ptr<OPacket> oPack)
 {
-	sendStorage = new std::vector<unsigned char>(*hm->encryptHeader(oPack));
-	sslSocket->async_write_some(boost::asio::buffer(*sendStorage, sendStorage->size()), boost::bind(&TCPConnection::asyncSendHandler, this, boost::asio::placeholders::error));
+	boost::shared_ptr<std::vector<unsigned char>> sendData = hm->encryptHeader(oPack);
+	sslSocket->async_write_some(boost::asio::buffer(*sendData, sendData->size()), boost::bind(&TCPConnection::asyncSendHandler, this, boost::asio::placeholders::error));
 }
 
 void WSS_TCPConnection::send(boost::shared_ptr<std::vector<unsigned char>> sendData)
@@ -31,19 +32,18 @@ void WSS_TCPConnection::send(boost::shared_ptr<std::vector<unsigned char>> sendD
 	sendStorage = new std::vector<unsigned char>(*sendData);
 	sslSocket->async_write_some(boost::asio::buffer(*sendStorage), boost::bind(&TCPConnection::asyncSendHandler, this, boost::asio::placeholders::error));
 }
+*/
 
 void WSS_TCPConnection::read()
 {
 	if (alive)
 	{
-		if (receiveStorage != nullptr)
+		if (receiveStorage == nullptr)
 		{
-			delete receiveStorage;
-			receiveStorage = nullptr;
+			receiveStorage = new std::vector<unsigned char>();
+			receiveStorage->resize(MAX_DATA_SIZE);
 		}
-		receiveStorage = new std::vector<unsigned char>();
-		receiveStorage->resize(MAX_DATA_SIZE);
-		sslSocket->async_read_some(boost::asio::buffer(*receiveStorage, MAX_DATA_SIZE), boost::bind(&WSS_TCPConnection::asyncReceiveHandler, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
+		sslSocket->async_read_some(boost::asio::buffer(*receiveStorage, MAX_DATA_SIZE), boost::bind(&WSS_TCPConnection::wssAsyncReceiveHandler, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
 	}
 }
 
@@ -71,7 +71,7 @@ void WSS_TCPConnection::asyncHandshakeHandler(const boost::system::error_code& e
 	}
 }
 
-void WSS_TCPConnection::asyncReceiveHandler(const boost::system::error_code& error, unsigned int nBytes)
+void WSS_TCPConnection::wssAsyncReceiveHandler(const boost::system::error_code& error, unsigned int nBytes)
 {
 	std::cout << "SSL_AsyncReceive" << std::endl;
 	if (error)
@@ -108,7 +108,7 @@ void WSS_TCPConnection::asyncReceiveHandler(const boost::system::error_code& err
 			return;
 		};
 	}
-	boost::shared_ptr<IPacket> iPack = hm->decryptHeader(receiveStorage, nBytes, cID);
+	boost::shared_ptr<IPacket> iPack = hm->decryptHeader(receiveStorage->data(), nBytes, cID);
 	if (iPack != nullptr)
 	{
 		server->getPacketManager()->process(iPack);

@@ -1,5 +1,6 @@
 #include "WSS_TCPAcceptor.h"
 #include "WSS_TCPConnection.h"
+#include "WSS_ServicePool.h"
 #include <Server.h>
 #include <ClientManager.h>
 #include <boost/bind.hpp>
@@ -8,20 +9,16 @@
 #include <iostream>
 
 WSS_TCPAcceptor::WSS_TCPAcceptor(Server* server)
-	:TCPAcceptor(server), sslContext(*server->getIOService(), boost::asio::ssl::context::sslv23)
+	:TCPAcceptor(server)
 {
-	sslContext.set_options(boost::asio::ssl::context::default_workarounds
-		| boost::asio::ssl::context::no_sslv2
-		| boost::asio::ssl::context::single_dh_use);
-	sslContext.use_certificate_chain_file("local.crt");
-	sslContext.use_private_key_file("local.key", boost::asio::ssl::context::pem);
-	sslContext.use_tmp_dh_file("dh1024.pem");
+
 }
 
 void WSS_TCPAcceptor::runAccept()
 {
-	tempSSLSocket = new ssl_socket(*server->getIOService(), sslContext);
-	acceptor->async_accept(tempSSLSocket->lowest_layer(), boost::bind(&WSS_TCPAcceptor::asyncAcceptHandler, this, boost::asio::placeholders::error));
+		WSS_ServicePool* wssServicePool = (WSS_ServicePool*)server->getServicePool();
+		tempSSLSocket = new ssl_socket(wssServicePool->getNextIOService(), wssServicePool->getNextSSLContext());
+		acceptor->async_accept(tempSSLSocket->lowest_layer(), boost::bind(&WSS_TCPAcceptor::asyncAcceptHandler, this, boost::asio::placeholders::error));
 }
 
 void WSS_TCPAcceptor::asyncAcceptHandler(const boost::system::error_code& error)

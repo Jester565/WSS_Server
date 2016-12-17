@@ -11,9 +11,9 @@ public:
 
 	void start() override;
 
-	void send(boost::shared_ptr<OPacket> oPack) override;
+	//void send(boost::shared_ptr<OPacket> oPack) override;
 
-	void send(boost::shared_ptr<std::vector<unsigned char>> sendData) override;
+	//void send(boost::shared_ptr<std::vector<unsigned char>> sendData) override;
 
 	void read() override;
 
@@ -22,7 +22,7 @@ public:
 protected:
 	void asyncHandshakeHandler(const boost::system::error_code& error);
 
-	void asyncReceiveHandler(const boost::system::error_code& error, unsigned int nBytes) override;
+	void wssAsyncReceiveHandler(const boost::system::error_code& error, unsigned int nBytes);
 
 	ssl_socket* sslSocket;
 };

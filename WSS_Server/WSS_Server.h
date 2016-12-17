@@ -6,9 +6,21 @@ class WSS_Server : public WSServer
 public:
 	WSS_Server();
 
-	virtual void asyncInitServer(uint16_t port) override;
+	void setCertPath(const std::string& certPath) {
+			this->certPath = certPath;
+	}
 
-	virtual void syncInitServer(uint16_t port) override;
+	void setPemPath(const std::string& pemPath) {
+			this->pemPath = pemPath;
+	}
+
+	virtual void createManagers() override;
+
+	virtual void run(uint16_t port) override;
 
 	virtual ~WSS_Server();
+
+private:
+		std::string certPath;
+		std::string pemPath;
 };
