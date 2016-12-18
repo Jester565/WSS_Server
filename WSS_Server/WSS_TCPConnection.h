@@ -11,11 +11,13 @@ public:
 
 	void start() override;
 
-	//void send(boost::shared_ptr<OPacket> oPack) override;
+	void send(boost::shared_ptr<OPacket> oPack) override;
 
-	//void send(boost::shared_ptr<std::vector<unsigned char>> sendData) override;
+	void send(boost::shared_ptr<std::vector<unsigned char>> sendData) override;
 
 	void read() override;
+
+	void close() override;
 
 	~WSS_TCPConnection();
 

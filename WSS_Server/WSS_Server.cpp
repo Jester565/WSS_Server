@@ -4,8 +4,8 @@
 #include <PacketManager.h>
 #include <ClientManager.h>
 
-WSS_Server::WSS_Server()
-	:WSServer()
+WSS_Server::WSS_Server(boost::asio::ip::tcp ipVersion)
+	:WSServer(ipVersion)
 {
 }
 

@@ -9,7 +9,7 @@
 #include <iostream>
 
 WSS_TCPAcceptor::WSS_TCPAcceptor(Server* server)
-	:TCPAcceptor(server)
+	:TCPAcceptor(server), tempSSLSocket(nullptr)
 {
 
 }
@@ -18,7 +18,13 @@ void WSS_TCPAcceptor::runAccept()
 {
 		WSS_ServicePool* wssServicePool = (WSS_ServicePool*)server->getServicePool();
 		tempSSLSocket = new ssl_socket(wssServicePool->getNextIOService(), wssServicePool->getNextSSLContext());
-		acceptor->async_accept(tempSSLSocket->lowest_layer(), boost::bind(&WSS_TCPAcceptor::asyncAcceptHandler, this, boost::asio::placeholders::error));
+		acceptor->async_accept(tempSSLSocket->lowest_layer(), boost::bind(&WSS_TCPAcceptor::asyncAcceptHandler, shared_from_this(), boost::asio::placeholders::error));
+}
+
+void WSS_TCPAcceptor::asyncShutdownHandler(const boost::system::error_code error)
+{
+		std::cout << "SHUTDOWN IS A BEAR" << std::endl;
+		tempSSLSocket->lowest_layer().close();
 }
 
 void WSS_TCPAcceptor::asyncAcceptHandler(const boost::system::error_code& error)
@@ -35,14 +41,10 @@ void WSS_TCPAcceptor::asyncAcceptHandler(const boost::system::error_code& error)
 			return;
 			break;
 		case RECALL_ON_ERROR:
-			if (tempSSLSocket != nullptr)
-			{
-				delete tempSSLSocket;
-				tempSSLSocket = nullptr;
-			}
 			runAccept();
 			return;
 		};
+		return;
 	}
 	boost::shared_ptr <TCPConnection> tcpConnection = boost::make_shared<WSS_TCPConnection>(server, tempSSLSocket);
 	tcpConnection->start();
@@ -50,12 +52,14 @@ void WSS_TCPAcceptor::asyncAcceptHandler(const boost::system::error_code& error)
 	runAccept();
 }
 
+void WSS_TCPAcceptor::close()
+{
+		if (tempSSLSocket != nullptr) {
+				tempSSLSocket->shutdown();
+		}
+}
+
 WSS_TCPAcceptor::~WSS_TCPAcceptor()
 {
-	std::cout << "WSS_TCPACCEPTOR DESTRUCTOR CALLED" << std::endl;
-	if (tempSSLSocket != nullptr)
-	{
-		delete tempSSLSocket;
-		tempSSLSocket = nullptr;
-	}
+		std::cout << "WSS_TCPACCEPTOR DESTRUCTOR CALLED" << std::endl;
 }

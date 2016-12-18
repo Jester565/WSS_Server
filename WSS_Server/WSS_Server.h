@@ -4,7 +4,7 @@
 class WSS_Server : public WSServer
 {
 public:
-	WSS_Server();
+	WSS_Server(boost::asio::ip::tcp ipVersion);
 
 	void setCertPath(const std::string& certPath) {
 			this->certPath = certPath;
