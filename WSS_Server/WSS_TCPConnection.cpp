@@ -109,13 +109,12 @@ void WSS_TCPConnection::wssAsyncReceiveHandler(const boost::system::error_code& 
 	std::cout << "SSL_AsyncReceive" << std::endl;
 	if (error)
 	{
-		if (error == boost::asio::error::connection_reset)
+		if (error == boost::asio::error::connection_reset | error.category() == boost::asio::error::ssl_category)
 		{
 			std::cout << "Connection Closed" << std::endl;
 			server->getClientManager()->removeClient(cID);
 			return;
 		}
-		std::cerr << "Error occured in TCP Reading: " << error << " - " << error.message() << std::endl;
 		std::cerr << "Error occured in TCP Reading: " << error << " - " << error.message() << std::endl;
 		std::string hrerr;
 		hrerr += boost::lexical_cast<std::string>(ERR_GET_LIB(error.value()));

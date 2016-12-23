@@ -20,7 +20,6 @@ public:
 
 	virtual ~WSS_Server();
 
-private:
 		std::string certPath;
 		std::string pemPath;
 };
