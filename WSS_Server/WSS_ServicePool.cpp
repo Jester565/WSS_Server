@@ -1,4 +1,5 @@
 #include "WSS_ServicePool.h"
+#include <boost/make_shared.hpp>
 
 WSS_ServicePool::WSS_ServicePool(const std::string& chainFile, const std::string& keyFile, int usedCores)
 		:ServicePool(usedCores)
@@ -12,8 +13,8 @@ WSS_ServicePool::WSS_ServicePool(const std::string& chainFile, const std::string
 						sslContext->use_certificate_chain_file(chainFile);
 						sslContext->use_private_key_file(keyFile, boost::asio::ssl::context::pem);
 				}
-				catch (std::exception ex) {
-						std::cerr << "ERROR WHEN CREATING SSL CONTEXT: " << ex.what() << std::endl;
+				catch (std::exception& ex) {
+					std::cerr << "ERROR WHEN CREATING SSL CONTEXT: " << ex.what() << std::endl;
 				}
 				sslContexts.push_back(sslContext);
 		}
