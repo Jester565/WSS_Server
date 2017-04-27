@@ -6,7 +6,7 @@
 #include <boost/bind.hpp>
 #include <boost/asio/placeholders.hpp>
 #include <boost/shared_ptr.hpp>
-#include <iostream>
+#include <Logger.h>
 
 WSS_TCPAcceptor::WSS_TCPAcceptor(Server* server)
 	:TCPAcceptor(server), tempSSLSocket(nullptr)
@@ -23,7 +23,6 @@ void WSS_TCPAcceptor::runAccept()
 
 void WSS_TCPAcceptor::asyncShutdownHandler(const boost::system::error_code error)
 {
-		std::cout << "SHUTDOWN IS A BEAR" << std::endl;
 		tempSSLSocket->lowest_layer().close();
 }
 
@@ -31,7 +30,7 @@ void WSS_TCPAcceptor::asyncAcceptHandler(const boost::system::error_code& error)
 {
 	if (error)
 	{
-		std::cerr << "Error occured in TCPAcceptor: " << error.message() << std::endl;
+		LOG_PRINTF(LOG_LEVEL::Error, "Error occured in TCPAcceptor: %s", error.message());
 		switch (errorMode)
 		{
 		case THROW_ON_ERROR:
@@ -61,5 +60,5 @@ void WSS_TCPAcceptor::close()
 
 WSS_TCPAcceptor::~WSS_TCPAcceptor()
 {
-		std::cout << "WSS_TCPACCEPTOR DESTRUCTOR CALLED" << std::endl;
+	
 }
