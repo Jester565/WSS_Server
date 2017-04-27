@@ -1,13 +1,15 @@
 #include "WSS_TCPConnection.h"
+#include <WSOPacket.h>
+#include <WSIPacket.h>
 #include <ClientManager.h>
 #include <PacketManager.h>
 #include <WSHeaderManager.h>
 #include <Server.h>
+#include <Logger.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
 #include <boost/asio/placeholders.hpp>
 #include <openssl/conf.h>
-#include <iostream>
 
 WSS_TCPConnection::WSS_TCPConnection(Server* server, ssl_socket* boundSocket)
 	:TCPConnection(server, nullptr), sslSocket(boundSocket)
@@ -22,6 +24,7 @@ void WSS_TCPConnection::start()
 
 void WSS_TCPConnection::send(boost::shared_ptr<OPacket> oPack)
 {
+	LOG_PRINTF(LOG_LEVEL::DebugLow, "Sending pack %s to id %d", oPack->getLocKey(), cID);
 		boost::shared_ptr<std::vector <unsigned char>> sendData = hm->encryptHeader(oPack);
 		sendingMutex.lock();
 		if (!sending)
@@ -84,12 +87,12 @@ void WSS_TCPConnection::asyncHandshakeHandler(const boost::system::error_code& e
 {
 	if (!error)
 	{
-		std::cout << "SSL Handshake Success!" << std::endl;
+		Logger::Log(LOG_LEVEL::DebugLow, "SSL Handshake Success!");
 		read();
 	}
 	else
 	{
-		std::cout << "Error occured in SSL Handshake: " << error << " - " << error.message() << std::endl;
+		LOG_PRINTF(LOG_LEVEL::Error, "Error occured in SSL Handshake: %s%s%s", error, " - ", error.message());
 		std::string hrerr;
 		hrerr += boost::lexical_cast<std::string>(ERR_GET_LIB(error.value()));
 		hrerr += ", ";
@@ -100,22 +103,20 @@ void WSS_TCPConnection::asyncHandshakeHandler(const boost::system::error_code& e
 		char buf[128];
 		ERR_error_string_n(error.value(), buf, 128);
 		hrerr += buf;
-		std::cout << "Human Readable Error Version: " << hrerr << std::endl;
+		LOG_PRINTF(LOG_LEVEL::Error, "Human Readable Error Version: %s", hrerr);
 	}
 }
 
 void WSS_TCPConnection::wssAsyncReceiveHandler(const boost::system::error_code& error, unsigned int nBytes)
 {
-	std::cout << "SSL_AsyncReceive" << std::endl;
 	if (error)
 	{
 		if (error == boost::asio::error::connection_reset | error.category() == boost::asio::error::ssl_category)
 		{
-			std::cout << "Connection Closed" << std::endl;
 			server->getClientManager()->removeClient(cID);
 			return;
 		}
-		std::cerr << "Error occured in TCP Reading: " << error << " - " << error.message() << std::endl;
+		LOG_PRINTF(LOG_LEVEL::Error, "Error occured in SSL Read: %s%s%s", error, " - ", error.message());
 		std::string hrerr;
 		hrerr += boost::lexical_cast<std::string>(ERR_GET_LIB(error.value()));
 		hrerr += ", ";
@@ -126,7 +127,7 @@ void WSS_TCPConnection::wssAsyncReceiveHandler(const boost::system::error_code& 
 		char buf[128];
 		ERR_error_string_n(error.value(), buf, 128);
 		hrerr += buf;
-		std::cout << "Human Readable Error Version: " << hrerr << std::endl;
+		LOG_PRINTF(LOG_LEVEL::Error, "Human Readable Error Version: %s", hrerr);
 
 		switch (errorMode)
 		{
@@ -143,6 +144,7 @@ void WSS_TCPConnection::wssAsyncReceiveHandler(const boost::system::error_code& 
 	boost::shared_ptr<IPacket> iPack = hm->decryptHeader(receiveStorage->data(), nBytes, cID);
 	if (iPack != nullptr)
 	{
+		LOG_PRINTF(LOG_LEVEL::DebugLow, "Received pack %s from id %d", iPack->getLocKey(), cID);
 		server->getPacketManager()->process(iPack);
 	}
 	read();
@@ -150,7 +152,6 @@ void WSS_TCPConnection::wssAsyncReceiveHandler(const boost::system::error_code& 
 
 WSS_TCPConnection::~WSS_TCPConnection()
 {
-	std::cout << "WSS DESTRUCTOR CALLED" << std::endl;
 	if (sslSocket != nullptr)
 	{
 			delete sslSocket;
