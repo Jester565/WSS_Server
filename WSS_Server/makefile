@@ -1,5 +1,5 @@
 CC = g++ -std=c++11
-CC_FLAGS = -w
+CC_FLAGS = -w -g
 LIBS = -lodbc -lboost_system -lboost_serialization -lboost_thread -lprotobuf -lcrypto -lssl -L/home/ubuntu/cproj/AsyncServerParent/AsyncServerParent/ -lasync_server -L/home/ubuntu/cproj/HTMLHandle/HTMLHandle/ -lhtml_handle -L/home/ubuntu/cproj/Boost_WS_Server/Boost_WS_Server/ -lws_server
 INCLUDES = -I/home/ubuntu/cproj/AsyncServerParent/AsyncServerParent/ -I/home/ubuntu/cproj/HTMLHandle/HTMLHandle/ -I/home/ubuntu/cproj/Boost_WS_Server/Boost_WS_Server/
 

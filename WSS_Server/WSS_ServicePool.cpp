@@ -6,12 +6,7 @@ WSS_ServicePool::WSS_ServicePool(const std::string& chainFile, const std::string
 		:ServicePool(usedCores)
 {
 		for (int i = 0; i < numCores; i++) {
-				boost::shared_ptr<boost::asio::ssl::context> sslContext;
-#ifdef _WIN32
-				sslContext = boost::make_shared<boost::asio::ssl::context>(*services.at(i), boost::asio::ssl::context::sslv23);
-#else
-				sslContext = = boost::make_shared<boost::asio::ssl::context>(*services.at(i), boost::asio::ssl::context::tlsv12);
-#endif
+			boost::shared_ptr<boost::asio::ssl::context> sslContext = boost::make_shared<boost::asio::ssl::context>(*services.at(i), boost::asio::ssl::context::tlsv12);
 			 
 			 sslContext->set_options(boost::asio::ssl::context::default_workarounds
 						| boost::asio::ssl::context::single_dh_use);
