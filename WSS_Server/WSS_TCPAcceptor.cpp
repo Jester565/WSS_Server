@@ -53,9 +53,9 @@ void WSS_TCPAcceptor::asyncAcceptHandler(const boost::system::error_code& error)
 
 void WSS_TCPAcceptor::close()
 {
-		if (tempSSLSocket != nullptr) {
-				tempSSLSocket->shutdown();
-		}
+	if (tempSSLSocket != nullptr) {
+		tempSSLSocket->shutdown();
+	}
 }
 
 WSS_TCPAcceptor::~WSS_TCPAcceptor()

@@ -1,3 +1,7 @@
+/*
+Each thread should have its own sslContext because it is not thread safe
+*/
+
 #pragma once
 #include <ServicePool.h>
 #include <boost/asio/ssl/context.hpp>

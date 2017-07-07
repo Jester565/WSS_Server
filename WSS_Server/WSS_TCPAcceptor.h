@@ -1,3 +1,7 @@
+/*
+Use ssl socket instead of normal tcp socket
+*/
+
 #pragma once
 #include <TCPAcceptor.h>
 #include <boost/asio/ssl.hpp>

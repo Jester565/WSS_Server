@@ -1,3 +1,7 @@
+/*
+Added functions to handle ssl handshake. Receive and send functions now use SSL Socket
+*/
+
 #pragma once
 #include <TCPConnection.h>
 #include <boost/asio/ssl.hpp>
