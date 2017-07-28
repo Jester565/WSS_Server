@@ -14,7 +14,6 @@
 WSS_TCPConnection::WSS_TCPConnection(Server* server, ssl_socket* boundSocket)
 	:TCPConnection(server, nullptr), sslSocket(boundSocket)
 {
-
 }
 
 void WSS_TCPConnection::start()
@@ -25,39 +24,39 @@ void WSS_TCPConnection::start()
 void WSS_TCPConnection::send(boost::shared_ptr<OPacket> oPack)
 {
 	LOG_PRINTF(LOG_LEVEL::DebugLow, "Sending pack %s to id %d", oPack->getLocKey(), cID);
-		boost::shared_ptr<std::vector <unsigned char>> sendData = hm->encryptHeader(oPack);
-		sendingMutex.lock();
-		if (!sending)
-		{
-				sending = true;
-				sendingMutex.unlock();
-				boost::asio::async_write(*sslSocket, boost::asio::buffer(*sendData, sendData->size()), boost::bind(&TCPConnection::asyncSendHandler, shared_from_this(), boost::asio::placeholders::error, sendData));
-		}
-		else
-		{
-				queueSendDataMutex.lock();
-				sendingMutex.unlock();
-				queueSendData.push(sendData);
-				queueSendDataMutex.unlock();
-		}
+	boost::shared_ptr<std::vector <unsigned char>> sendData = hm->encryptHeader(oPack);
+	sendingMutex.lock();
+	if (!sending)
+	{
+		sending = true;
+		sendingMutex.unlock();
+		boost::asio::async_write(*sslSocket, boost::asio::buffer(*sendData, sendData->size()), boost::bind(&TCPConnection::asyncSendHandler, shared_from_this(), boost::asio::placeholders::error, sendData));
+	}
+	else
+	{
+		queueSendDataMutex.lock();
+		sendingMutex.unlock();
+		queueSendData.push(sendData);
+		queueSendDataMutex.unlock();
+	}
 }
 
 void WSS_TCPConnection::send(boost::shared_ptr<std::vector<unsigned char>> sendData)
 {
-		sendingMutex.lock();
-		if (!sending)
-		{
-				sending = true;
-				sendingMutex.unlock();
-				boost::asio::async_write(*sslSocket, boost::asio::buffer(*sendData, sendData->size()), boost::bind(&TCPConnection::asyncSendHandler, shared_from_this(), boost::asio::placeholders::error, sendData));
-		}
-		else
-		{
-				queueSendDataMutex.lock();
-				sendingMutex.unlock();
-				queueSendData.push(sendData);
-				queueSendDataMutex.unlock();
-		}
+	sendingMutex.lock();
+	if (!sending)
+	{
+		sending = true;
+		sendingMutex.unlock();
+		boost::asio::async_write(*sslSocket, boost::asio::buffer(*sendData, sendData->size()), boost::bind(&TCPConnection::asyncSendHandler, shared_from_this(), boost::asio::placeholders::error, sendData));
+	}
+	else
+	{
+		queueSendDataMutex.lock();
+		sendingMutex.unlock();
+		queueSendData.push(sendData);
+		queueSendDataMutex.unlock();
+	}
 }
 
 void WSS_TCPConnection::read()
@@ -75,12 +74,12 @@ void WSS_TCPConnection::read()
 
 void WSS_TCPConnection::close()
 {
-		TCPConnection::close();
-		if (socket != nullptr)
-		{
-				sslSocket->shutdown();
-				socket->lowest_layer().close();
-		}
+	TCPConnection::close();
+	if (socket != nullptr)
+	{
+		sslSocket->shutdown();
+		socket->lowest_layer().close();
+	}
 }
 
 void WSS_TCPConnection::asyncHandshakeHandler(const boost::system::error_code& error)
@@ -128,18 +127,6 @@ void WSS_TCPConnection::wssAsyncReceiveHandler(const boost::system::error_code& 
 		ERR_error_string_n(error.value(), buf, 128);
 		hrerr += buf;
 		LOG_PRINTF(LOG_LEVEL::Error, "Human Readable Error Version: %s", hrerr);
-
-		switch (errorMode)
-		{
-		case THROW_ON_ERROR:
-			throw error;
-			break;
-		case RETURN_ON_ERROR:
-			return;
-		case RECALL_ON_ERROR:
-			read();
-			return;
-		};
 	}
 	boost::shared_ptr<IPacket> iPack = hm->decryptHeader(receiveStorage->data(), nBytes, cID);
 	if (iPack != nullptr)
@@ -154,7 +141,7 @@ WSS_TCPConnection::~WSS_TCPConnection()
 {
 	if (sslSocket != nullptr)
 	{
-			delete sslSocket;
-			sslSocket = nullptr;
+		delete sslSocket;
+		sslSocket = nullptr;
 	}
 }

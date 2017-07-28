@@ -11,38 +11,25 @@
 WSS_TCPAcceptor::WSS_TCPAcceptor(Server* server)
 	:TCPAcceptor(server), tempSSLSocket(nullptr)
 {
-
 }
 
 void WSS_TCPAcceptor::runAccept()
 {
-		WSS_ServicePool* wssServicePool = (WSS_ServicePool*)server->getServicePool();
-		tempSSLSocket = new ssl_socket(wssServicePool->getNextIOService(), wssServicePool->getNextSSLContext());
-		acceptor->async_accept(tempSSLSocket->lowest_layer(), boost::bind(&WSS_TCPAcceptor::asyncAcceptHandler, shared_from_this(), boost::asio::placeholders::error));
+	WSS_ServicePool* wssServicePool = (WSS_ServicePool*)server->getServicePool();
+	tempSSLSocket = new ssl_socket(wssServicePool->getNextIOService(), wssServicePool->getNextSSLContext());
+	acceptor->async_accept(tempSSLSocket->lowest_layer(), boost::bind(&WSS_TCPAcceptor::asyncAcceptHandler, shared_from_this(), boost::asio::placeholders::error));
 }
 
 void WSS_TCPAcceptor::asyncShutdownHandler(const boost::system::error_code error)
 {
-		tempSSLSocket->lowest_layer().close();
+	tempSSLSocket->lowest_layer().close();
 }
 
 void WSS_TCPAcceptor::asyncAcceptHandler(const boost::system::error_code& error)
 {
 	if (error)
 	{
-		LOG_PRINTF(LOG_LEVEL::Error, "Error occured in TCPAcceptor: %s", error.message());
-		switch (errorMode)
-		{
-		case THROW_ON_ERROR:
-			throw error;
-			break;
-		case RETURN_ON_ERROR:
-			return;
-			break;
-		case RECALL_ON_ERROR:
-			runAccept();
-			return;
-		};
+		LOG_PRINTF(LOG_LEVEL::Error, "Error occured in TCPAcceptor: %s", error.message().c_str());
 		return;
 	}
 	boost::shared_ptr <TCPConnection> tcpConnection = boost::make_shared<WSS_TCPConnection>(server, tempSSLSocket);
@@ -60,5 +47,4 @@ void WSS_TCPAcceptor::close()
 
 WSS_TCPAcceptor::~WSS_TCPAcceptor()
 {
-	
 }

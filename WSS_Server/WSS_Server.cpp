@@ -11,20 +11,18 @@ WSS_Server::WSS_Server(boost::asio::ip::tcp ipVersion)
 
 void WSS_Server::createManagers()
 {
-		servicePool = new WSS_ServicePool(certPath, pemPath);
-		pm = new PacketManager(this);
-		cm = new ClientManager(this);
+	servicePool = new WSS_ServicePool(certPath, pemPath);
+	pm = new PacketManager(this);
+	cm = new ClientManager(this);
 }
-
 
 void WSS_Server::run(uint16_t port)
 {
-		tcpAcceptor = boost::make_shared <WSS_TCPAcceptor>(this);
-		tcpAcceptor->detach(port);
-		servicePool->run();
+	tcpAcceptor = boost::make_shared <WSS_TCPAcceptor>(this);
+	tcpAcceptor->detach(port);
+	servicePool->run();
 }
 
 WSS_Server::~WSS_Server()
 {
-	
 }

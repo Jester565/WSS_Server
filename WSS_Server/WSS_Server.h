@@ -12,12 +12,12 @@ public:
 
 	//The path of the server's ssl certificate
 	void setCertPath(const std::string& certPath) {
-			this->certPath = certPath;
+		this->certPath = certPath;
 	}
 
 	//The path of the permission file
 	void setPemPath(const std::string& pemPath) {
-			this->pemPath = pemPath;
+		this->pemPath = pemPath;
 	}
 
 	//We need to use our custom ServicePool, so we override this
@@ -28,6 +28,6 @@ public:
 
 	virtual ~WSS_Server();
 
-		std::string certPath;
-		std::string pemPath;
+	std::string certPath;
+	std::string pemPath;
 };
