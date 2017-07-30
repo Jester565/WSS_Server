@@ -12,7 +12,6 @@ WSS_Server::WSS_Server(boost::asio::ip::tcp ipVersion)
 void WSS_Server::createManagers()
 {
 	servicePool = new WSS_ServicePool(certPath, pemPath);
-	pm = new PacketManager(this);
 	cm = new ClientManager(this);
 }
 
