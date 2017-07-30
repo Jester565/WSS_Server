@@ -19,7 +19,7 @@ WSS_TCPConnection::WSS_TCPConnection(Server* server, ssl_socket* boundSocket)
 
 void WSS_TCPConnection::start()
 {
-	sslSocket->async_handshake(boost::asio::ssl::stream_base::server, boost::bind(&WSS_TCPConnection::asyncHandshakeHandler, this, boost::asio::placeholders::error));
+	sslSocket->async_handshake(boost::asio::ssl::stream_base::server, boost::bind(&WSS_TCPConnection::asyncHandshakeHandler, boost::static_pointer_cast<WSS_TCPConnection>(shared_from_this()), boost::asio::placeholders::error));
 }
 
 void WSS_TCPConnection::send(boost::shared_ptr<OPacket> oPack)
@@ -92,7 +92,7 @@ void WSS_TCPConnection::asyncHandshakeHandler(const boost::system::error_code& e
 	}
 	else
 	{
-		LOG_PRINTF(LOG_LEVEL::Error, "Error occured in SSL Handshake: %s%s%s", error, " - ", error.message());
+		LOG_PRINTF(LOG_LEVEL::Error, "Error occured in SSL Handshake: %s", error.message());
 		std::string hrerr;
 		hrerr += boost::lexical_cast<std::string>(ERR_GET_LIB(error.value()));
 		hrerr += ", ";
@@ -116,7 +116,7 @@ void WSS_TCPConnection::wssAsyncReceiveHandler(const boost::system::error_code& 
 			server->getClientManager()->removeClient(sender->getID());
 			return;
 		}
-		LOG_PRINTF(LOG_LEVEL::Error, "Error occured in SSL Read: %s%s%s", error, " - ", error.message());
+		LOG_PRINTF(LOG_LEVEL::Error, "Error occured in SSL Read: %s", error.message());
 		std::string hrerr;
 		hrerr += boost::lexical_cast<std::string>(ERR_GET_LIB(error.value()));
 		hrerr += ", ";
